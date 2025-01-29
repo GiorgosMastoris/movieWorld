@@ -12,5 +12,6 @@ Route::get('/login', function () {
 
 Route::get('/', [MovieController::class, 'index'])->name('index');
 Route::get('/register', [RegisterController::class, 'create'])->name('register');
-Route::post('/register', [RegisterController::class, 'store']);
-Route::post('/login', [LoginController::class, 'store']);
+Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
+Route::post('/login', [LoginController::class, 'store'])->name('login.store');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');

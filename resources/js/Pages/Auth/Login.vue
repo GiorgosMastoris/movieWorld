@@ -11,22 +11,24 @@
                 <div class="rounded-md shadow-sm -space-y-px">
                     <div>
                         <label for="email-address" class="sr-only">Email address</label>
-                        <input id="email-address" v-model="form.email" name="email" type="email" autocomplete="email" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Email address" />
+                        <input id="email-address" v-model="form.email" name="email"  autocomplete="email" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Email address" />
+                        <div v-if="errors.email">
+                            <div v-for="(error, index) in errors.email" :key="index" class="text-red-500">
+                                {{ error }}
+                            </div>
+                        </div>
                     </div>
                     <div>
                         <label for="password" class="sr-only">Password</label>
                         <input id="password" v-model="form.password" name="password" type="password" autocomplete="current-password" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" placeholder="Password" />
+                        <div v-if="errors.password">
+                            <div v-for="(error, index) in errors.password" :key="index" class="text-red-500">
+                                {{ error }}
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <input id="remember_me" name="remember_me" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" />
-                        <label for="remember_me" class="ml-2 block text-sm text-gray-900">
-                            Remember me
-                        </label>
-                    </div>
-                </div>
                 <div>
                     <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         Sign in
@@ -37,21 +39,17 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import { useForm } from '@inertiajs/vue3'
 
-export default {
-    setup() {
-        const form = useForm({
-            email: '',
-            password: '',
-        })
+defineProps({ errors: Object })
 
-        const submit = () => {
-            form.post('/login')
-        }
+const form = useForm({
+    email: '',
+    password: '',
+})
 
-        return { form, submit }
-    },
+const submit = () => {
+    form.post(route('login.store'))
 }
 </script>
