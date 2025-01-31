@@ -3,34 +3,31 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
+use App\Http\Requests\RegisterRequest;
+use App\Repositories\AuthRepository;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 
 class RegisterController extends Controller
 {
-    public function create()
+    /**
+     * @param AuthRepository $authRepository
+     */
+    public function __construct(public readonly AuthRepository $authRepository){}
+
+    public function create(): \Inertia\Response
     {
-        // Return the register page
         return Inertia::render('Auth/Register');
     }
 
-    public function store(Request $request)
+    /**
+     * @param RegisterRequest $request
+     * @return RedirectResponse
+     */
+    public function store(RegisterRequest $request): RedirectResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => ['required', 'confirmed', Password::default()],
-        ]);
+        $this->authRepository->create($request->validated());
 
-        $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password)
-        ]);
-
-        return to_route('login');
+        return to_route('login')->with('success', trans('auth.register_success'));
     }
 }

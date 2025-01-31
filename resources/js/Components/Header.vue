@@ -12,6 +12,7 @@
             </div>
 
             <div v-if="user" class="hidden md:flex space-x-6">
+                <p class="block text-white py-2 px-4">Welcome back {{user.name.charAt(0).toUpperCase() + user.name.slice(1)}}</p>
                 <button @click="logout"  class="block bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded-md">Logout</button>
             </div>
 
