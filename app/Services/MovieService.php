@@ -8,10 +8,8 @@ use App\Repositories\MovieRepository;
 readonly class MovieService
 {
     public function __construct(public MovieRepository $movieRepository){}
-    public function getPaginated(){
-
-        $movies = $this->movieRepository->getPaginate(['votes']);
-
+    public function getPaginated($filter){
+        $movies = $this->movieRepository->getPaginate($filter);
         $movieDTOs = $movies->getCollection()->map(function ($movie) {
             $votesData = $movie->votes->map(function ($vote) {
                 return [
@@ -25,7 +23,7 @@ readonly class MovieService
                 'id' => $movie->id,
                 'title' => $movie->title,
                 'description' => $movie->description,
-                'user_id' => $movie->user_id,
+                'user' => $movie->user,
                 'date_of_publication' => $movie->date_of_publication,
                 'votes' => $votesData,
             ]);

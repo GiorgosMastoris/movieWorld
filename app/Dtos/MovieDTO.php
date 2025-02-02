@@ -2,12 +2,14 @@
 
 namespace App\Dtos;
 
+use App\Models\User;
+
 class MovieDTO extends BaseDTO
 {
     public string $id;
     public string $title;
     public ?string $description;
-    public int $user_id;
+    public User $user;
     public string $date_of_publication;
     public int $like = 0;
     public int $hate = 0;
@@ -21,7 +23,7 @@ class MovieDTO extends BaseDTO
         $this->id = $this->data['id'];
         $this->title = $this->data['title'] ?? '';
         $this->description = $this->data['description'] ?? null;
-        $this->user_id = $this->data['user_id'] ?? 0;
+        $this->user = $this->data['user'];
         $this->date_of_publication = $this->data['date_of_publication'] ?? '';
 
         if (isset($this->data['votes']) && is_array($this->data['votes'])) {

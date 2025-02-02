@@ -13,50 +13,39 @@
                         <span class="font-semibold mr-1">{{ movie.like }}</span>|
                         <span class="font-semibold mr-1">{{ movie.hate }}</span>
                     </div>
-                    <div v-if="user && movie.user_id != user.id" class="flex items-center">
+                    <div v-if="user && movie.user.id != user.id" class="flex items-center">
                         <form @submit.prevent="vote(movie.id)">
                             <input type="hidden" v-model="voteForm.movie_id">
                             <input type="hidden" v-model="voteForm.type">
-
                             <button
-                                v-if="alreadyLikeOrHate('like', movie)"
                                 @click="voteForm.type = 'like'"
                                 type="submit"
-                                class="bg-green-500 text-white py-1 px-3 rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                :disabled="movie.votes.some(vote => vote.user_id === user.id && vote.type === 'like')"
+                                class="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 Like
                             </button>
 
                             <button
-                                v-if="alreadyLikeOrHate('hate', movie)"
                                 @click="voteForm.type = 'hate'"
                                 type="submit"
-                                class="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
+                                :disabled="movie.votes.some(vote => vote.user_id === user.id && vote.type === 'hate')"
+                                class="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
                                 Dislike
                             </button>
                         </form>
                     </div>
                 </div>
+                <form @submit.prevent="applyFilters">
+                    <div class="mt-4 flex justify-between text-sm text-gray-700">
+                        Posted by
+                    </div>
+                    <p class="cursor-pointer" @click="setUserIdAndSubmit(movie.user.id)">{{ movie.user.name }}</p>
+                </form>
             </div>
 
-            <div class="flex justify-between items-center mt-4">
-                <button
-                    @click="changePage(movies.prev_page_url)"
-                    :disabled="!movies.prev_page_url"
-                    class="bg-gray-500 text-white py-1 px-3 rounded hover:bg-gray-600 focus:outline-none">
-                    Previous
-                </button>
-
-                <span class="text-sm text-gray-700">
-                    Page {{ movies.current_page }} of {{ movies.last_page }}
-                </span>
-
-                <button
-                    @click="changePage(movies.next_page_url)"
-                    :disabled="!movies.next_page_url"
-                    class="bg-gray-500 text-white py-1 px-3 rounded hover:bg-gray-600 focus:outline-none">
-                    Next
-                </button>
-            </div>
+            <Paginator
+                :links="movies.links"
+            />
         </div>
 
         <div class="w-64 bg-gray-600 text-white p-6">
@@ -70,22 +59,27 @@
                     <h2 class="block text-sm font-medium">Sort by</h2><br></br>
                     <div class="flex flex-col">
                         <label for="date_of_publication" class="flex items-center mb-2">
-                            <input v-model="filters.sortBy" type="radio" id="date_of_publication" value="date_of_publication" class="h-4 w-4 text-green-600 focus:ring-indigo-500">
+                            <input v-model="filters.sortBy" type="radio" id="date_of_publication" value="date_of_publication" class="h-4 w-4">
                             <span class="ml-2">Date of Publication</span>
                         </label>
                         <label for="like" class="flex items-center mb-2">
-                            <input v-model="filters.sortBy" type="radio" id="like" value="like" class="h-4 w-4 text-green-600 focus:ring-indigo-500">
+                            <input v-model="filters.sortBy" type="radio" id="like" value="like" class="h-4 w-4">
                             <span class="ml-2">Like</span>
                         </label>
-                        <label for="dislike" class="flex items-center">
-                            <input v-model="filters.sortBy" type="radio" id="dislike" value="dislike" class="h-4 w-4 text-red-600 focus:ring-red-500">
-                            <span class="ml-2">Dislike</span>
+                        <label for="hate" class="flex items-center">
+                            <input v-model="filters.sortBy" type="radio" id="hate" value="hate" class="h-4 w-4">
+                            <span class="ml-2">Hate</span>
                         </label>
                     </div>
                 </div>
 
                 <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     Apply Filters
+                </button>
+            </form>
+            <form @submit.prevent="clearFilters">
+                <button type="submit" class="mt-5 w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    Reset Filters
                 </button>
             </form>
         </div>
@@ -95,16 +89,19 @@
 <script setup>
 import {useForm, usePage} from "@inertiajs/vue3";
 import {computed} from "vue";
+import Paginator from "@/Components/Paginator.vue";
 
 defineProps({
-    movies: Object
+    movies: Object,
+    filters: Object,
 })
 
 const page = usePage()
 const user = computed(() => page.props.user)
 
 const filters = useForm({
-    sortBy: '',
+    sortBy: new URLSearchParams(window.location.search).get('sortBy'),
+    userId: new URLSearchParams(window.location.search).get('userId'),
 });
 
 const voteForm = useForm({
@@ -122,17 +119,34 @@ const vote = (movieId) => {
     });
 };
 
-function alreadyLikeOrHate($type, $movie)
-{
-    return true;
-}
-const changePage = (url) => {
-    if (url) {
-        window.location.href = url;
-    }
+const setUserIdAndSubmit = (userId) => {
+    filters.userId = userId;
+    applyFilters();
 };
 
 const applyFilters = () => {
-    // Filter application logic (optional)
+    let filteredForm = {}
+
+    for (const key in filters.data()) if (filters[key]) {
+        filteredForm[key] = filters[key]
+    }
+
+    filters
+        .transform( () => filteredForm )
+        .get(route('index'), {
+            preserveState: true,
+            replace: true,
+            preserveScroll: true
+        })
 };
+
+const clearFilterForm = () => {
+    for (const key in filters.data()) if (filters[key]) {
+        filters[key] = null
+    }
+}
+const clearFilters = () => {
+    clearFilterForm()
+    applyFilters()
+}
 </script>

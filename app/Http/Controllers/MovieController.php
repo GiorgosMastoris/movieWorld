@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\MovieRequest;
+use App\Http\Requests\MovieFilterRequest;
+use App\Http\Requests\MovieStoreRequest;
 use App\Repositories\MovieRepository;
 use App\Services\MovieService;
 use Illuminate\Http\RedirectResponse;
@@ -22,15 +23,18 @@ class MovieController extends Controller
     public function __construct(public readonly MovieRepository $movieRepository, public readonly MovieService $movieService){}
 
     /**
+     * @param MovieFilterRequest $request
      * @return Response
      */
-    public function index(): Response
+    public function index(MovieFilterRequest $request): Response
     {
-        try {
-            $movieDTOs = $this->movieService->getPaginated();
 
+        try {
+            $filter = $request->validated();
+            $movieDTOs = $this->movieService->getPaginated($filter);
             return Inertia::render('Movies/Index', [
                 'movies' => $movieDTOs,
+                'filters' => $filter
             ]);
         } catch (Exception $e) {
             Log::error($e->getMessage());
@@ -56,10 +60,10 @@ class MovieController extends Controller
     }
 
     /**
-     * @param MovieRequest $request
+     * @param MovieStoreRequest $request
      * @return RedirectResponse|Response
      */
-    public function store(MovieRequest $request): Response|RedirectResponse
+    public function store(MovieStoreRequest $request): Response|RedirectResponse
     {
         try {
             $this->movieRepository->createFromUser(Auth::id(), $request->all());
