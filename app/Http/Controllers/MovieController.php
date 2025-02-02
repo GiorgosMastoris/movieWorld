@@ -67,7 +67,7 @@ class MovieController extends Controller
     {
         try {
             $this->movieRepository->createFromUser(Auth::id(), $request->all());
-            return to_route('index');
+            return to_route('index')->with(['success' => trans('movie.created')]);
         } catch (Exception $e) {
             Log::error($e->getMessage());
             return Inertia::render('Error', [
