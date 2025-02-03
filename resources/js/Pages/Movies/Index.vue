@@ -10,7 +10,9 @@
                 </div>
                 <div class="mt-4 flex justify-between text-sm text-gray-700">
                     <div class="flex items-center">
-                        <span class="font-semibold mr-1">{{ movie.like }}</span>|
+                        <strong> Likes: </strong>
+                        <span class="font-semibold mr-1">{{ movie.like }}</span>
+                        <strong>| Hates: </strong>
                         <span class="font-semibold mr-1">{{ movie.hate }}</span>
                     </div>
                     <div v-if="user && movie.user.id != user.id" class="flex items-center">
