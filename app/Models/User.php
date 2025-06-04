@@ -6,6 +6,8 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Book;
+use App\Models\BookVote;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -59,8 +61,24 @@ class User extends Authenticatable
     /**
      * @return HasMany
      */
+    public function books(): HasMany
+    {
+        return $this->hasMany(Book::class);
+    }
+
+    /**
+     * @return HasMany
+     */
     public function votes(): HasMany
     {
         return $this->hasMany(Vote::class);
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function bookVotes(): HasMany
+    {
+        return $this->hasMany(BookVote::class);
     }
 }

@@ -1,8 +1,9 @@
 <template>
     <header class="bg-blue-600 text-white py-4 px-6">
         <div class="flex justify-between items-center">
-            <div class="text-2xl font-bold">
+            <div class="text-2xl font-bold flex items-center space-x-4">
                 <h1> <Link :href="route('index')"> Movie World </Link></h1>
+                <Link :href="route('books.index')" class="text-lg underline">Books</Link>
             </div>
 
             <div v-if="!user" class="hidden md:flex space-x-6">
@@ -27,6 +28,7 @@
         <div v-show="isMenuOpen"   class="md:hidden bg-blue-600 text-white px-6 py-4 space-y-4">
             <Link v-if="!user" :href="route('login')" class="block bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded-md">Login</Link>
             <Link v-if="!user" :href="route('register')" class="block bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded-md">Sign Up</Link>
+            <Link :href="route('books.index')" class="block bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded-md">Books</Link>
             <button v-if="user" @click="logout"  class="block bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded-md">Logout</button>
         </div>
     </header>
